@@ -12,7 +12,7 @@
 	The Teensy USB port (Serial) is as fast as the Due native
 	port.
 
-	Requires the following libraries installed into Arduino Due:
+	Requires the following libraries installed for Arduino Due:
 
 	https://github.com/collin80/can_common
 	https://github.com/collin80/due_can
@@ -113,7 +113,7 @@ void j1939Decode(long ID, unsigned long* PGN, byte* priority, byte* src_addr, by
 	}
 }
 
-#ifdef ARDUINO_TEENSY40
+#ifdef TEENSY
 void got_frame_teensy(const CAN_message_t &frame) {
 	got_frame(frame.id, frame.flags.extended, frame.len, (BytesUnion *)frame.buf);
 }
@@ -167,6 +167,7 @@ void setup()
 {
 	delay(5000);
 	Serial.begin(115200);
+	Serial.println("j1939 CAN sniffer.");
 #ifdef TEENSY
 	//Teensy FlexCAN_T4 setup
 	Can0.begin();
