@@ -35,7 +35,7 @@
 #else //Due
 #  include "variant.h" 
 #  include <due_can.h>
-//#  define Serial SerialUSB
+#  define Serial SerialUSB
 #endif
 
 
@@ -73,7 +73,7 @@ typedef union {
 
 #  ifdef ARDUINO_TEENSY40
 //use the first CAN port on the Teensy 4.0
-FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> Can0;
+FlexCAN_T4<CAN1, RX_SIZE_1024, TX_SIZE_1024> Can0;
 #  else
 //use the only CAN port on the Teensy 3.6
 FlexCAN_T4<CAN0, RX_SIZE_256, TX_SIZE_16> Can0;
@@ -99,7 +99,7 @@ void j1939Decode(long ID, unsigned long* PGN, byte* priority, byte* src_addr, by
 
 	*priority = (int)((ID & 0x1C000000) >> 26);
 
-	*PGN = ID & 0x00FFFF00;
+	*PGN = ID & 0x01FFFF00;
 	*PGN = *PGN >> 8;
 
 	ID = ID & 0x000000FF;
@@ -172,11 +172,11 @@ void setup()
 	//Teensy FlexCAN_T4 setup
 	Can0.begin();
 	Can0.setBaudRate(250000);
+	Can0.setMaxMB(32);
 	Can0.enableFIFO();
-	Can0.enableFIFOInterrupt();
 	Can0.onReceive(got_frame_teensy);
-	Can0.enableMBInterrupts(FIFO);
-	Can0.enableMBInterrupts();
+	Can0.enableFIFOInterrupt();
+	Can0.mailboxStatus();
 #else
 	//Due due_can setup
 	Can0.begin(CAN_BPS_250K);
@@ -192,9 +192,5 @@ void setup()
 
 void loop()
 {
-#ifdef TEENSY
-	//process collected frames
-	Can0.events();
-#endif
 }
 
